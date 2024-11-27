@@ -1,11 +1,9 @@
+"use client"
 import Image from "next/image";
 import styles from "./page.module.css";
-import MainCard from "@/components/MainCard";
-import { Button, Grid, Grid2 } from "@mui/material";
-import StudentForm from "@/components/Forms/StudentForm";
-import TesteForm from "@/components/Forms/SubjectForm";
-
-
+import { Button, Grid } from "@mui/material";
+import { StudentsTable } from "@/components/StudentsTable";
+import SubjectsTable from "@/components/SubjectsTable";
 
 export default function Home() {
   return (
@@ -33,7 +31,12 @@ export default function Home() {
           <Button variant="contained" color="error">Sair</Button>
         </Grid>
       </Grid>
-
+      <Grid>
+        <StudentsTable/>
+      </Grid>
+      <Grid>
+        <SubjectsTable/>
+      </Grid>
     </Grid>
   );
 }

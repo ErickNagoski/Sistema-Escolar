@@ -1,9 +1,11 @@
 import api from "@/services/api";
-import { Button, Table, TableBody, TableCell, TableHead, TableRow, Tooltip } from "@mui/material";
+import { Box, Button, Table, TableBody, TableCell, TableHead, TableRow, Tooltip } from "@mui/material";
 import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
 import useSWR from "swr";
 import TableViewIcon from '@mui/icons-material/TableView';
+import { GradesModal } from "./GradesModal";
+import { format } from "date-fns";
 
 type StudentProps = {
     id: number;
@@ -24,9 +26,18 @@ type StudentProps = {
 export function StudentsTable() {
     const [students, setStudents] = useState<StudentProps[]>([]);
     const [gradesModal, setGradesModal] = useState(false);
+    const [selectedStudent, setSelectedStudent] = useState<StudentProps | null>(null);
+
+    const handleGradesModal = () => {
+        setGradesModal(!gradesModal)
+    }
 
     async function getData<T>(key: string): Promise<T[]> {
-        const response = await api.get(key)
+        const response = await api.get(key, {
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
 
         if (response.data) {
             return response.data
@@ -48,7 +59,16 @@ export function StudentsTable() {
         columnHelper.accessor(row => row.id, {
             id: 'actions',
             header: () => '',
-            cell: info => <Tooltip title='Notas' placement="top"><Button variant="outlined"><TableViewIcon /></Button></Tooltip>,
+            cell: info => <Tooltip title='Notas' placement="top">
+                <Button
+                    variant="outlined"
+                    onClick={() => {
+                        setSelectedStudent(info.row.original);
+                        handleGradesModal()
+                    }}>
+                    <TableViewIcon />
+                </Button>
+            </Tooltip>,
         }),
         columnHelper.accessor('matricula', {
             header: () => 'Matrícula',
@@ -76,11 +96,11 @@ export function StudentsTable() {
         }),
         columnHelper.accessor('bithday', {
             header: () => 'Nascimento',
-            cell: info => info.renderValue(),
+            cell: info => format(info.getValue(), 'dd/MM/yyyy'),
         }),
         columnHelper.accessor('created_at', {
             header: () => 'Data Matrícula',
-            cell: info => info.renderValue(),
+            cell: info => format(info.getValue(), 'dd/MM/yyyy'),
         }),
     ]
 
@@ -91,33 +111,37 @@ export function StudentsTable() {
     })
 
 
-    return (<Table>
-        <TableHead>
-            {table.getHeaderGroups().map(headerGroup => (
-                <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map(header => (
-                        <TableCell key={header.id} sx={{ textTransform: 'uppercase' }}>
-                            {header.isPlaceholder
-                                ? null
-                                : flexRender(
-                                    header.column.columnDef.header,
-                                    header.getContext()
-                                )}
-                        </TableCell>
+    return (
+        <Box>
+            <Table>
+                <TableHead>
+                    {table.getHeaderGroups().map(headerGroup => (
+                        <TableRow key={headerGroup.id}>
+                            {headerGroup.headers.map(header => (
+                                <TableCell key={header.id} sx={{ textTransform: 'uppercase' }}>
+                                    {header.isPlaceholder
+                                        ? null
+                                        : flexRender(
+                                            header.column.columnDef.header,
+                                            header.getContext()
+                                        )}
+                                </TableCell>
+                            ))}
+                        </TableRow>
                     ))}
-                </TableRow>
-            ))}
-        </TableHead>
-        <TableBody>
-            {table.getRowModel().rows.map(row => (
-                <TableRow key={row.id}>
-                    {row.getVisibleCells().map(cell => (
-                        <TableCell key={cell.id}>
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </TableCell>
+                </TableHead>
+                <TableBody>
+                    {table.getRowModel().rows.map(row => (
+                        <TableRow key={row.id}>
+                            {row.getVisibleCells().map(cell => (
+                                <TableCell key={cell.id}>
+                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                </TableCell>
+                            ))}
+                        </TableRow>
                     ))}
-                </TableRow>
-            ))}
-        </TableBody>
-    </Table>);
+                </TableBody>
+            </Table>
+            {gradesModal && (<GradesModal onClose={handleGradesModal} matricula={selectedStudent ? selectedStudent?.matricula : ''} />)}
+        </Box>);
 }
