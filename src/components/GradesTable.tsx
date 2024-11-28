@@ -2,7 +2,7 @@ import api from "@/services/api";
 import { Tooltip, Button, Table, TableHead, TableRow, TableCell, TableBody, Box, Typography, Stack, TextField } from "@mui/material";
 import { createColumnHelper, useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-table";
 import { useEffect, useMemo, useState } from "react"
-import useSWR from "swr";
+import useSWR, { useSWRConfig } from "swr";
 import EditIcon from '@mui/icons-material/Edit';
 import { format } from "date-fns";
 import { DeleteForever } from "@mui/icons-material";
@@ -17,6 +17,7 @@ type GradeProps = {
 
 const GradesTable = ({ matricula, filter }: { matricula: string, filter: string }) => {
     const [grades, setGrades] = useState<GradeProps[]>([]);
+    const { mutate } = useSWRConfig();
 
     async function updateMyData(rowIndex: any, columnId: any, value: any, id: number): Promise<void> {
 
@@ -71,7 +72,7 @@ const GradesTable = ({ matricula, filter }: { matricula: string, filter: string 
     }, [filter])
 
     async function deleteGrade(id: number) {
-        api.delete(`/grades/${id}`)
+        api.delete(`/grades/${id}`).then(() => mutate(`/grades/student/${matricula}`))
     }
 
     const columnHelper = createColumnHelper<GradeProps>()

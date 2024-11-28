@@ -7,7 +7,7 @@ import TableViewIcon from '@mui/icons-material/TableView';
 import { GradesModal } from "./GradesModal";
 import { format } from "date-fns";
 
-type StudentProps = {
+export type StudentProps = {
     id: number;
     user_id: number;
     matricula: string,
