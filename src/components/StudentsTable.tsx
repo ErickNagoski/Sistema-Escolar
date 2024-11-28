@@ -1,5 +1,5 @@
 import api from "@/services/api";
-import { Box, Button, Table, TableBody, TableCell, TableHead, TableRow, Tooltip } from "@mui/material";
+import { Box, Button, Skeleton, Table, TableBody, TableCell, TableHead, TableRow, Tooltip } from "@mui/material";
 import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
 import useSWR from "swr";
@@ -46,7 +46,7 @@ export function StudentsTable() {
         return []
     }
 
-    const { data } = useSWR(`/alunos`, getData<StudentProps>);
+    const { data, isLoading } = useSWR(`/alunos`, getData<StudentProps>);
 
     useEffect(() => {
         if (data) {
@@ -58,7 +58,7 @@ export function StudentsTable() {
     const columns = [
         columnHelper.accessor(row => row.id, {
             id: 'actions',
-            header: () => '',
+            header: () => 'notas',
             cell: info => <Tooltip title='Notas' placement="top">
                 <Button
                     variant="outlined"
@@ -110,15 +110,18 @@ export function StudentsTable() {
         getCoreRowModel: getCoreRowModel(),
     })
 
+    if(isLoading){
+        return <Skeleton width='100%' height={300}/>
+    }
 
     return (
         <Box>
-            <Table>
-                <TableHead>
+            <Table sx={{border:'1px solid #cce2ff'}}>
+                <TableHead sx={{backgroundColor:"#cce2ff"}}>
                     {table.getHeaderGroups().map(headerGroup => (
                         <TableRow key={headerGroup.id}>
                             {headerGroup.headers.map(header => (
-                                <TableCell key={header.id} sx={{ textTransform: 'uppercase' }}>
+                                <TableCell key={header.id} sx={{ textTransform: 'uppercase', fontWeight:'600' }}>
                                     {header.isPlaceholder
                                         ? null
                                         : flexRender(

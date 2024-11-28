@@ -18,7 +18,6 @@ const cursos = [
 
 const StudentForm = () => {
 
-    const [a, seta] = useState('');
     const { control, handleSubmit } = useForm({
         defaultValues: {
             nome: '',
@@ -187,8 +186,8 @@ const StudentForm = () => {
 
             {/* Botão de Submit */}
             <Grid item xs={12} style={{ marginTop: '16px' }}>
-                <Button type="submit" variant="contained" color="primary">
-                    Salvar
+                <Button type="submit" variant="contained" color="success">
+                    Salvar cadastro
                 </Button>
             </Grid>
         </form>

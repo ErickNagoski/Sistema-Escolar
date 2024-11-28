@@ -40,6 +40,14 @@ export function GradesModal({ onClose, matricula }: GradesModalProps) {
         }
     }, [data])
 
+    const handleFilter = (subject: string) => {
+        if (subjectFilter == subject) {
+            setSubjectFilter('');
+        } else {
+            setSubjectFilter(subject)
+        }
+    }
+
 
     return (<Modal
         open={true}
@@ -58,13 +66,21 @@ export function GradesModal({ onClose, matricula }: GradesModalProps) {
             boxShadow: 24,
             p: 4,
         }}>
-            <Grid xs={12}>
-                <Typography>Disciplinas do aluno</Typography>
-                <Grid >
-                    {studentSubjects.map((item, i) => <Chip key={item.id} label={item.name} variant={subjectFilter == item.name ? 'filled' : 'outlined'} onClick={() => setSubjectFilter(item.name)} />)}
+            <Grid xs={12} container>
+                <Grid item>
+                    <Typography fontWeight='600'>Disciplinas do aluno</Typography>
                 </Grid>
-                <Typography>Notas</Typography>
-                <Grid xs={12}>
+                <Grid item xs={12} sx={{borderBottom:"1px solid #f1f1f1"}} paddingY={1}>
+                    {studentSubjects.map((item, i) =>
+                        <Chip
+                            key={item.id}
+                            label={item.name}
+                            variant={subjectFilter == item.name ? 'filled' : 'outlined'}
+                            onClick={() => handleFilter(item.name)}
+                            sx={{ marginRight: 1 }} />)}
+                </Grid>
+                <Grid xs={12} item>
+                    <Typography variant="h5" textAlign='center' fontWeight={600}>Notas</Typography>
                     <GradesTable matricula={matricula} filter={subjectFilter} />
                 </Grid>
             </Grid>

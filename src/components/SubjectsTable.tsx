@@ -1,5 +1,5 @@
 import api from "@/services/api";
-import { Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
+import { Skeleton, Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
 import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
@@ -33,7 +33,7 @@ const SubjectsTable = ({ }: SubjectsTableProps) => {
         return []
     }
 
-    const { data } = useSWR(`/disciplinas`, getData<SubjectsProps>);
+    const { data, isLoading } = useSWR(`/disciplinas`, getData<SubjectsProps>);
 
     useEffect(() => {
         if (data) {
@@ -67,12 +67,17 @@ const SubjectsTable = ({ }: SubjectsTableProps) => {
         getCoreRowModel: getCoreRowModel(),
     })
 
-    return (<Table>
-        <TableHead>
+    if(isLoading){
+        return <Skeleton width='100%' height={300}/>
+    }
+
+
+    return (<Table sx={{border:'1px solid #cce2ff'}}>
+        <TableHead sx={{backgroundColor:"#cce2ff"}}>
             {table.getHeaderGroups().map(headerGroup => (
                 <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map(header => (
-                        <TableCell key={header.id} sx={{ textTransform: 'uppercase' }}>
+                        <TableCell key={header.id} sx={{ textTransform: 'uppercase', fontWeight:'600' }}>
                             {header.isPlaceholder
                                 ? null
                                 : flexRender(
