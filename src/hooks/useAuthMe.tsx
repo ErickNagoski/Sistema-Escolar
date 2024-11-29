@@ -1,11 +1,22 @@
 "use client"
+import api from '@/services/api';
 import { redirect } from 'next/navigation';
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
+type AuthmeProps = {
+  email: string;
+  matricula?: string;
+  name?: string;
+  id?: number;
+  situation?: string;
+}
+
+
 // Define o tipo para os dados de autenticação
 export interface AuthData {
-  token: string;
+  user?: AuthmeProps;
   role: string;
+  token: string
 }
 
 // Define o tipo para o contexto
@@ -24,7 +35,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const clearAuthData = () => setAuthData(null);
 
-  
+  useEffect(() => {
+    if (authData?.user?.email) {
+      api.post<AuthmeProps>('/auth/me', { email: authData?.user?.email }, {
+        headers: {
+          Authorization: `Bearer ${authData?.token}`
+        }
+      }).then(res => {
+        if (authData) {
+          setAuthData({ ...authData, user: res.data })
+        }
+      })
+    }
+  }, [authData?.token])
+
   return (
     <AuthContext.Provider value={{ authData, setAuthData, clearAuthData }}>
       {children}

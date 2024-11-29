@@ -24,7 +24,7 @@ const LoginPage = () => {
   const onSubmit: SubmitHandler<LoginFormInputs> = (data) => {
     api.post<AuthData>(`/auth`, data).then((res) => {
       if (res.data) {
-        setAuthData(res.data)
+        setAuthData({...res.data, user:{email:data.email}})
       }
 
       res.data.role == 'school' ? redirect(`/school`) : redirect(`/student`)

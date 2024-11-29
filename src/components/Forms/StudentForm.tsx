@@ -8,6 +8,7 @@ import {
     Typography,
 } from '@mui/material';
 import api from '@/services/api';
+import { useAuth } from '@/hooks/useAuthMe';
 
 const cursos = [
     { id: 1, nome: 'Engenharia de Software' },
@@ -17,6 +18,7 @@ const cursos = [
 ];
 
 const StudentForm = () => {
+    const { authData } = useAuth();
 
     const { control, handleSubmit } = useForm({
         defaultValues: {
@@ -34,7 +36,11 @@ const StudentForm = () => {
     });
 
     const onSubmit = (data: any) => {
-        api.post('/alunos', data)
+        api.post('/alunos', data, {
+            headers: {
+                Authorization: `Bearer ${authData?.token}`
+            }
+        })
     };
 
 
