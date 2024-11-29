@@ -1,3 +1,4 @@
+import { useAuth } from "@/hooks/useAuthMe";
 import api from "@/services/api";
 import { Skeleton, Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
 import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
@@ -17,12 +18,17 @@ type SubjectsProps = {
 }
 
 const SubjectsTable = ({ }: SubjectsTableProps) => {
+    const { authData } = useAuth();
+    console.log(authData)
+
     const [subjects, setSubjects] = useState<SubjectsProps[]>([]);
 
     async function getData<T>(key: string): Promise<T[]> {
         const response = await api.get(key, {
             headers: {
                 'Content-Type': 'application/json',
+                Authorization: `Bearer ${authData?.token}`
+
             }
         })
 

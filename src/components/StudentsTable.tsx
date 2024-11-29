@@ -6,6 +6,7 @@ import useSWR from "swr";
 import TableViewIcon from '@mui/icons-material/TableView';
 import { GradesModal } from "./GradesModal";
 import { format } from "date-fns";
+import { useAuth } from "@/hooks/useAuthMe";
 
 export type StudentProps = {
     id: number;
@@ -24,6 +25,8 @@ export type StudentProps = {
 }
 
 export function StudentsTable() {
+    const { authData } = useAuth();
+
     const [students, setStudents] = useState<StudentProps[]>([]);
     const [gradesModal, setGradesModal] = useState(false);
     const [selectedStudent, setSelectedStudent] = useState<StudentProps | null>(null);
@@ -36,6 +39,8 @@ export function StudentsTable() {
         const response = await api.get(key, {
             headers: {
                 'Content-Type': 'application/json',
+                Authorization: `Bearer ${authData?.token}`
+
             }
         })
 

@@ -8,6 +8,7 @@ import { StudentProps } from "./StudentsTable";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { Close } from "@mui/icons-material";
+import { useAuth } from "@/hooks/useAuthMe";
 
 interface GradesModalProps {
     onClose: () => void,
@@ -21,6 +22,8 @@ type SubjectProps = {
 }
 
 export function GradesModal({ onClose, matricula }: GradesModalProps) {
+    const { authData } = useAuth();
+
     const [studentSubjects, setStudentSubjects] = useState<SubjectProps[]>([]);
     const [subjectFilter, setSubjectFilter] = useState<string>('');
     const [student, setStudent] = useState<StudentProps>();
@@ -31,6 +34,7 @@ export function GradesModal({ onClose, matricula }: GradesModalProps) {
         const response = await api.get(key, {
             headers: {
                 'Content-Type': 'application/json',
+                Authorization: `Bearer ${authData?.token}`
             }
         })
 
@@ -117,7 +121,7 @@ export function GradesModal({ onClose, matricula }: GradesModalProps) {
                     </Grid>
                     <Grid item xs={5} alignItems='flex-end' direction='column' display='flex'>
                         <Button onClick={onClose} color='error'><Close /></Button>
-                        <Button size='small' sx={{alignSelf:"flex-start"}}  variant="outlined">Gerar histórico</Button>
+                        <Button size='small' sx={{ alignSelf: "flex-start" }} variant="outlined">Gerar histórico</Button>
                     </Grid>
                 </Grid>
                 <Grid item>

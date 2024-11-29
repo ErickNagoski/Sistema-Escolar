@@ -6,6 +6,7 @@ import useSWR, { useSWRConfig } from "swr";
 import EditIcon from '@mui/icons-material/Edit';
 import { format } from "date-fns";
 import { DeleteForever } from "@mui/icons-material";
+import { useAuth } from "@/hooks/useAuthMe";
 
 type GradeProps = {
     id: number;
@@ -16,6 +17,8 @@ type GradeProps = {
 
 
 const GradesTable = ({ matricula, filter }: { matricula: string, filter: string }) => {
+    const { authData } = useAuth();
+
     const [grades, setGrades] = useState<GradeProps[]>([]);
     const { mutate } = useSWRConfig();
 
@@ -45,6 +48,8 @@ const GradesTable = ({ matricula, filter }: { matricula: string, filter: string 
         const response = await api.get(key, {
             headers: {
                 'Content-Type': 'application/json',
+                Authorization: `Bearer ${authData?.token}`
+
             }
         })
 

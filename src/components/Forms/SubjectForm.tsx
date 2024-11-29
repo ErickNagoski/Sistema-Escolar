@@ -1,3 +1,4 @@
+import { useAuth } from '@/hooks/useAuthMe';
 import api from '@/services/api';
 import { Typography, Grid, TextField, MenuItem, Button } from '@mui/material';
 import React, { useEffect, useState } from 'react';
@@ -9,12 +10,16 @@ type TeacherProps = {
 }
 
 const SubjectForm = () => {
+  const { authData } = useAuth();
+
   const [teachers, setTeachers] = useState<TeacherProps[]>([]);
 
   async function getData<T>(key: string): Promise<T[]> {
     const response = await api.get(key, {
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${authData?.token}`
+
       }
     })
 
