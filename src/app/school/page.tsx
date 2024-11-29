@@ -4,12 +4,16 @@ import StudentForm from "@/components/Forms/StudentForm";
 import { StudentsTable } from "@/components/StudentsTable";
 import { SubjectModal } from "@/components/SubjectsModal";
 import SubjectsTable from "@/components/SubjectsTable";
+import { useAuth } from "@/hooks/useAuthMe";
 import { Close } from "@mui/icons-material";
 import { Grid, Button, Typography } from "@mui/material";
 import Image from "next/image";
-import { useState } from "react";
+import { redirect } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function Home() {
+  const { authData, clearAuthData } = useAuth();
+
   const [subjectModal, setSubjectModal] = useState(false);
   const [studentModal, setStudentModal] = useState(false);
 
@@ -20,6 +24,13 @@ export default function Home() {
   const handleStudentModal = () => {
     setStudentModal(!studentModal)
   }
+
+  useEffect(()=>{
+    console.log('useEffect')
+    if(!authData){
+      redirect('/')
+    }
+  },[authData])
 
 
   return (
@@ -38,7 +49,7 @@ export default function Home() {
         </Grid>
 
         <Grid item xs={2}>
-          <Button variant="contained" color="error">Sair</Button>
+          <Button variant="contained" color="error" onClick={clearAuthData}>Sair</Button>
         </Grid>
       </Grid>
       <Grid container xs={12} rowSpacing={2} padding={5}>
