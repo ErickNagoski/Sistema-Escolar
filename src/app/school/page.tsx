@@ -61,7 +61,7 @@ export default function Home() {
             <Button variant="contained" color="primary" onClick={handleSubjectModal}>Cadastrar diciplina</Button>
           </Grid>
           <Grid xs={12} item>
-            <SubjectsTable />
+            <SubjectsTable matricula={authData?.user?.matricula as string}/>
           </Grid>
         </Grid>
         <Grid container item padding={2} marginY={1} rowSpacing={2} sx={{ backgroundColor: "#fff", borderRadius: '5px' }} >

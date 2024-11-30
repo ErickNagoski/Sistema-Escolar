@@ -16,14 +16,13 @@ type GradeProps = {
 }
 
 
-const GradesTable = ({ matricula, filter }: { matricula: string, filter: string }) => {
+const GradesTable = ({ matricula, filter, role }: { matricula: string, filter: string, role?: string }) => {
     const { authData } = useAuth();
 
     const [grades, setGrades] = useState<GradeProps[]>([]);
     const { mutate } = useSWRConfig();
 
     async function updateMyData(rowIndex: any, columnId: any, value: any, id: number): Promise<void> {
-
         await api.patch(`/grades/${id}`, { grade: Number(value) }).then(() => {
             setGrades(old =>
                 old.map((row, index) => {
@@ -81,7 +80,20 @@ const GradesTable = ({ matricula, filter }: { matricula: string, filter: string 
     }
 
     const columnHelper = createColumnHelper<GradeProps>()
-    const columns = useMemo(() => [
+    const columns = useMemo(() => role == 'student' ? [
+        columnHelper.accessor('subject_name', {
+            header: () => 'Disciplina',
+            cell: info => info.renderValue(),
+        }),
+        columnHelper.accessor('grade', {
+            header: () => 'Nota',
+            cell: info => info.renderValue(),
+        }),
+        columnHelper.accessor('created_at', {
+            header: () => 'Data de atualização',
+            cell: info => format(info.getValue(), 'dd/MM/yyyy'),
+        })
+    ] : [
         columnHelper.accessor('subject_name', {
             header: () => 'Disciplina',
             cell: info => info.renderValue(),
@@ -108,6 +120,7 @@ const GradesTable = ({ matricula, filter }: { matricula: string, filter: string 
             id: 'delete',
             header: () => '',
             cell: info => <Tooltip title='Deletar' placement="top"><Button variant="outlined" color='error' onClick={() => deleteGrade(info.row.original.id)}><DeleteForever /></Button></Tooltip>,
+            enableHiding: true
         }),
     ], [grades])
 
@@ -115,6 +128,7 @@ const GradesTable = ({ matricula, filter }: { matricula: string, filter: string 
         data: grades,
         columns,
         getCoreRowModel: getCoreRowModel(),
+        // state: { columnVisibility }
     })
 
 

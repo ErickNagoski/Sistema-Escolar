@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import useSWR from "swr";
 
 interface SubjectsTableProps {
-
+    matricula: string
 }
 
 type SubjectsProps = {
@@ -17,7 +17,7 @@ type SubjectsProps = {
     created_at: string
 }
 
-const SubjectsTable = ({ }: SubjectsTableProps) => {
+const SubjectsTable = ({ matricula }: SubjectsTableProps) => {
     const { authData } = useAuth();
     console.log(authData)
 
@@ -39,7 +39,7 @@ const SubjectsTable = ({ }: SubjectsTableProps) => {
         return []
     }
 
-    const { data, isLoading } = useSWR(`/disciplinas`, getData<SubjectsProps>);
+    const { data, isLoading } = useSWR(matricula ? `/aluno/${matricula}` : `/disciplinas`, getData<SubjectsProps>);
 
     useEffect(() => {
         if (data) {
@@ -73,17 +73,17 @@ const SubjectsTable = ({ }: SubjectsTableProps) => {
         getCoreRowModel: getCoreRowModel(),
     })
 
-    if(isLoading){
-        return <Skeleton width='100%' height={300}/>
+    if (isLoading) {
+        return <Skeleton width='100%' height={300} />
     }
 
 
-    return (<Table sx={{border:'1px solid #cce2ff'}}>
-        <TableHead sx={{backgroundColor:"#cce2ff"}}>
+    return (<Table sx={{ border: '1px solid #cce2ff' }}>
+        <TableHead sx={{ backgroundColor: "#cce2ff" }}>
             {table.getHeaderGroups().map(headerGroup => (
                 <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map(header => (
-                        <TableCell key={header.id} sx={{ textTransform: 'uppercase', fontWeight:'600' }}>
+                        <TableCell key={header.id} sx={{ textTransform: 'uppercase', fontWeight: '600' }}>
                             {header.isPlaceholder
                                 ? null
                                 : flexRender(
