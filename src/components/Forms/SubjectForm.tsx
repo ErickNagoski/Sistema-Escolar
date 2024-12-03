@@ -5,11 +5,11 @@ import React, { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import useSWR from 'swr';
 type TeacherProps = {
-  id: number,
+  teacherId: number,
   name: string,
 }
 
-const SubjectForm = () => {
+const SubjectForm = ({onClose}:{onClose:()=>void}) => {
   const { authData } = useAuth();
 
   const [teachers, setTeachers] = useState<TeacherProps[]>([]);
@@ -46,8 +46,13 @@ const SubjectForm = () => {
   });
 
   const onSubmit = (data: any) => {
-    api.post('/disciplinas', data).then(() => {
-      reset()
+    api.post('/disciplinas', data, {
+      headers: {
+        Authorization: `Bearer ${authData?.token}`
+      }
+    }).then(() => {
+      reset();
+      onClose()
     })
   };
 
@@ -80,10 +85,7 @@ const SubjectForm = () => {
                 fullWidth
                 select
               >
-                <MenuItem value="1">Professor A</MenuItem>
-                <MenuItem value="2">Professor B</MenuItem>
-                <MenuItem value="3">Professor C</MenuItem>
-                <MenuItem value="4">Professor D</MenuItem>
+                {teachers.map(item => (<MenuItem key={item.teacherId} value={item.teacherId}>{item.name}</MenuItem>))}
               </TextField>
             )}
           />

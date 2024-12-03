@@ -26,7 +26,6 @@ export default function Home() {
   }
 
   useEffect(()=>{
-    console.log('useEffect')
     if(!authData){
       redirect('/')
     }
@@ -77,7 +76,7 @@ export default function Home() {
           <Grid item xs={12}>
             {studentModal && (
               <Grid item xs={12} padding={2} margin={1}>
-                <StudentForm />
+                <StudentForm onClose={handleStudentModal}/>
               </Grid>)}
             <StudentsTable />
           </Grid>

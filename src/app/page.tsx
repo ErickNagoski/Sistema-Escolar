@@ -13,7 +13,16 @@ interface LoginFormInputs {
 }
 
 const LoginPage = () => {
-  const { setAuthData } = useAuth();
+  const { setAuthData, authData } = useAuth();
+
+  useEffect(() => {
+    if (authData?.role == 'student') {
+      redirect('/student');
+    }
+    if (authData?.role == 'school') {
+      redirect('/school');
+    }
+  }, [authData])
 
   const {
     register,
@@ -24,7 +33,7 @@ const LoginPage = () => {
   const onSubmit: SubmitHandler<LoginFormInputs> = (data) => {
     api.post<AuthData>(`/auth`, data).then((res) => {
       if (res.data) {
-        setAuthData({...res.data, user:{email:data.email}})
+        setAuthData({ ...res.data, user: { email: data.email } })
       }
 
       res.data.role == 'school' ? redirect(`/school`) : redirect(`/student`)

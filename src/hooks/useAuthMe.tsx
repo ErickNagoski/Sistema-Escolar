@@ -1,6 +1,5 @@
 "use client"
 import api from '@/services/api';
-import { redirect } from 'next/navigation';
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
 type AuthmeProps = {
@@ -11,12 +10,10 @@ type AuthmeProps = {
   situation?: string;
 }
 
-
-// Define o tipo para os dados de autenticação
 export interface AuthData {
   user?: AuthmeProps;
   role: string;
-  token: string
+  token: string;
 }
 
 // Define o tipo para o contexto
@@ -31,26 +28,50 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Provedor do contexto
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [authData, setAuthData] = useState<AuthData | null>(null);
+  const [authData, setAuthDataState] = useState<AuthData | null>(null);
 
-  const clearAuthData = () => setAuthData(null);
+  // Função para salvar no localStorage
+  const saveAuthData = (data: AuthData | null) => {
+    if (data) {
+      localStorage.setItem('authData', JSON.stringify(data));
+    } else {
+      localStorage.removeItem('authData');
+    }
+    setAuthDataState(data);
+  };
 
+  // Função para limpar dados de autenticação
+  const clearAuthData = () => saveAuthData(null);
+
+  // Recupera os dados do localStorage ao carregar o componente
+  useEffect(() => {
+    const storedData = localStorage.getItem('authData');
+    console.log(storedData)
+    if (storedData) {
+      setAuthDataState(JSON.parse(storedData));
+    }
+  }, []);
+
+  // Atualiza os dados do usuário, se necessário
   useEffect(() => {
     if (authData?.user?.email) {
-      api.post<AuthmeProps>('/auth/me', { email: authData?.user?.email }, {
-        headers: {
-          Authorization: `Bearer ${authData?.token}`
-        }
-      }).then(res => {
-        if (authData) {
-          setAuthData({ ...authData, user: res.data })
-        }
-      })
+      api
+        .post<AuthmeProps>('/auth/me', { email: authData?.user?.email }, {
+          headers: {
+            Authorization: `Bearer ${authData?.token}`,
+          },
+        })
+        .then((res) => {
+          if (authData) {
+            saveAuthData({ ...authData, user: res.data });
+          }
+        })
+        .catch(() => clearAuthData());
     }
-  }, [authData?.token])
+  }, [authData?.token]);
 
   return (
-    <AuthContext.Provider value={{ authData, setAuthData, clearAuthData }}>
+    <AuthContext.Provider value={{ authData, setAuthData: saveAuthData, clearAuthData }}>
       {children}
     </AuthContext.Provider>
   );

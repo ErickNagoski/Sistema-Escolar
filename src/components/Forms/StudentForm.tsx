@@ -17,7 +17,7 @@ const cursos = [
     { id: 4, nome: 'Medicina' },
 ];
 
-const StudentForm = () => {
+const StudentForm = ({ onClose }: { onClose: () => void }) => {
     const { authData } = useAuth();
 
     const { control, handleSubmit } = useForm({
@@ -40,7 +40,7 @@ const StudentForm = () => {
             headers: {
                 Authorization: `Bearer ${authData?.token}`
             }
-        })
+        }).then(() => { onClose })
     };
 
 

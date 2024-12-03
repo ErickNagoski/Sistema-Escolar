@@ -3,7 +3,7 @@ import api from "@/services/api";
 import { Skeleton, Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
 import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { format } from "date-fns";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import useSWR from "swr";
 
 interface SubjectsTableProps {
@@ -19,8 +19,6 @@ type SubjectsProps = {
 
 const SubjectsTable = ({ matricula }: SubjectsTableProps) => {
     const { authData } = useAuth();
-    console.log(authData)
-
     const [subjects, setSubjects] = useState<SubjectsProps[]>([]);
 
     async function getData<T>(key: string): Promise<T[]> {
@@ -39,7 +37,7 @@ const SubjectsTable = ({ matricula }: SubjectsTableProps) => {
         return []
     }
 
-    const { data, isLoading } = useSWR(matricula ? `/aluno/${matricula}` : `/disciplinas`, getData<SubjectsProps>);
+    const { data, isLoading } = useSWR(matricula ? `/disciplinas/aluno/${matricula}` : `/disciplinas`, getData<SubjectsProps>);
 
     useEffect(() => {
         if (data) {
@@ -48,7 +46,7 @@ const SubjectsTable = ({ matricula }: SubjectsTableProps) => {
     }, [data])
 
     const columnHelper = createColumnHelper<SubjectsProps>()
-    const columns = [
+    const columns = useMemo(() => [
         columnHelper.accessor('id', {
             header: () => 'Id',
             cell: info => info.renderValue(),
@@ -63,10 +61,10 @@ const SubjectsTable = ({ matricula }: SubjectsTableProps) => {
         }),
         columnHelper.accessor('created_at', {
             header: () => 'Data cadastro',
-            cell: info => format(info.getValue(), 'dd/MM/yyyy'),
+            cell: info => info.getValue() ? format(info.getValue(), 'dd/MM/yyyy') : '',
         })
     ]
-
+        , [subjects])
     const table = useReactTable({
         data: subjects,
         columns,

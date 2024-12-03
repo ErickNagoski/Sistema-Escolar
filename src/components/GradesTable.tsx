@@ -23,7 +23,11 @@ const GradesTable = ({ matricula, filter, role }: { matricula: string, filter: s
     const { mutate } = useSWRConfig();
 
     async function updateMyData(rowIndex: any, columnId: any, value: any, id: number): Promise<void> {
-        await api.patch(`/grades/${id}`, { grade: Number(value) }).then(() => {
+        await api.patch(`/grades/${id}`, { grade: Number(value) }, {
+            headers: {
+                Authorization: `Bearer ${authData?.token}`
+            }
+        }).then(() => {
             setGrades(old =>
                 old.map((row, index) => {
                     if (index === rowIndex) {
@@ -76,7 +80,11 @@ const GradesTable = ({ matricula, filter, role }: { matricula: string, filter: s
     }, [filter])
 
     async function deleteGrade(id: number) {
-        api.delete(`/grades/${id}`).then(() => mutate(`/grades/student/${matricula}`))
+        api.delete(`/grades/${id}`, {
+            headers: {
+                Authorization: `Bearer ${authData?.token}`
+            }
+        }).then(() => mutate(`/grades/student/${matricula}`))
     }
 
     const columnHelper = createColumnHelper<GradeProps>()
@@ -91,7 +99,7 @@ const GradesTable = ({ matricula, filter, role }: { matricula: string, filter: s
         }),
         columnHelper.accessor('created_at', {
             header: () => 'Data de atualização',
-            cell: info => format(info.getValue(), 'dd/MM/yyyy'),
+            cell: info => info.getValue() ? format(info.getValue(), 'dd/MM/yyyy') : "",
         })
     ] : [
         columnHelper.accessor('subject_name', {
@@ -114,7 +122,7 @@ const GradesTable = ({ matricula, filter, role }: { matricula: string, filter: s
         }),
         columnHelper.accessor('created_at', {
             header: () => 'Data de atualização',
-            cell: info => format(info.getValue(), 'dd/MM/yyyy'),
+            cell: info => info.getValue() ? format(info.getValue(), 'dd/MM/yyyy') : '',
         }),
         columnHelper.accessor(row => row.id, {
             id: 'delete',

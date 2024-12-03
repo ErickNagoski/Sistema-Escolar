@@ -37,7 +37,7 @@ export function SubjectModal({ onClose, }: GradesModalProps) {
                     </Button>
                 </Grid>
                 <Grid xs={12} item>
-                    <SubjectForm />
+                    <SubjectForm onClose={onClose}/>
                 </Grid>
             </Grid>
         </Box>

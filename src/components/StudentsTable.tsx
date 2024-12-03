@@ -22,6 +22,7 @@ export type StudentProps = {
     situation: string;
     created_at: string;
     updated_at: string;
+    subjects: number
 }
 
 export function StudentsTable() {
@@ -64,15 +65,19 @@ export function StudentsTable() {
         columnHelper.accessor(row => row.id, {
             id: 'actions',
             header: () => 'notas',
-            cell: info => <Tooltip title='Notas' placement="top">
-                <Button
-                    variant="outlined"
-                    onClick={() => {
-                        setSelectedStudent(info.row.original);
-                        handleGradesModal()
-                    }}>
-                    <TableViewIcon />
-                </Button>
+            cell: info => <Tooltip title={info.row.original.subjects == 0 ? 'Aluno sem disciplinas' : 'Notas'} placement="top">
+                <Box>
+                    <Button
+                        variant="outlined"
+                        onClick={() => {
+                            setSelectedStudent(info.row.original);
+                            handleGradesModal()
+                        }}
+                        disabled={info.row.original.subjects == 0}
+                    >
+                        <TableViewIcon />
+                    </Button>
+                </Box>
             </Tooltip>,
         }),
         columnHelper.accessor('matricula', {
@@ -101,11 +106,11 @@ export function StudentsTable() {
         }),
         columnHelper.accessor('bithday', {
             header: () => 'Nascimento',
-            cell: info => format(info.getValue(), 'dd/MM/yyyy'),
+            cell: info => info.getValue() ? format(info.getValue(), 'dd/MM/yyyy') : '',
         }),
         columnHelper.accessor('created_at', {
             header: () => 'Data Matrícula',
-            cell: info => format(info.getValue(), 'dd/MM/yyyy'),
+            cell: info => info.getValue() ? format(info.getValue(), 'dd/MM/yyyy') : '',
         }),
     ]
 
@@ -115,18 +120,18 @@ export function StudentsTable() {
         getCoreRowModel: getCoreRowModel(),
     })
 
-    if(isLoading){
-        return <Skeleton width='100%' height={300}/>
+    if (isLoading) {
+        return <Skeleton width='100%' height={300} />
     }
 
     return (
         <Box>
-            <Table sx={{border:'1px solid #cce2ff'}}>
-                <TableHead sx={{backgroundColor:"#cce2ff"}}>
+            <Table sx={{ border: '1px solid #cce2ff' }}>
+                <TableHead sx={{ backgroundColor: "#cce2ff" }}>
                     {table.getHeaderGroups().map(headerGroup => (
                         <TableRow key={headerGroup.id}>
                             {headerGroup.headers.map(header => (
-                                <TableCell key={header.id} sx={{ textTransform: 'uppercase', fontWeight:'600' }}>
+                                <TableCell key={header.id} sx={{ textTransform: 'uppercase', fontWeight: '600' }}>
                                     {header.isPlaceholder
                                         ? null
                                         : flexRender(

@@ -7,15 +7,16 @@ import { Controller, useForm } from "react-hook-form";
 import { StudentProps } from "./StudentsTable";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { Close } from "@mui/icons-material";
+import { Add, Close } from "@mui/icons-material";
 import { useAuth } from "@/hooks/useAuthMe";
+import { HistoricModal } from "./HistoricModal";
 
 interface GradesModalProps {
     onClose: () => void,
     matricula: string
 }
 
-type SubjectProps = {
+export type SubjectProps = {
     id: number,
     name: string,
     teacher: string
@@ -27,6 +28,13 @@ export function GradesModal({ onClose, matricula }: GradesModalProps) {
     const [studentSubjects, setStudentSubjects] = useState<SubjectProps[]>([]);
     const [subjectFilter, setSubjectFilter] = useState<string>('');
     const [student, setStudent] = useState<StudentProps>();
+    const [gradeForm, setGradeForm] = useState(false);
+    const [historyModal, setHistoryModal] = useState(false);
+
+    const handleHistoryModal = () => {
+        setHistoryModal(!historyModal)
+    }
+
 
     const { mutate } = useSWRConfig();
 
@@ -89,7 +97,11 @@ export function GradesModal({ onClose, matricula }: GradesModalProps) {
 
     const onSubmit = (data: any) => {
         if (student) {
-            api.post('/grades', { ...data, studentId: student.id }).then(() => mutate(`/grades/student/${matricula}`))
+            api.post('/grades', { ...data, studentId: student.id }, {
+                headers: {
+                    Authorization: `Bearer ${authData?.token}`
+                }
+            }).then(() => { mutate(`/grades/student/${matricula}`); setGradeForm(false) })
         } else {
             window.alert('Estudante não identificado!')
         }
@@ -121,7 +133,7 @@ export function GradesModal({ onClose, matricula }: GradesModalProps) {
                     </Grid>
                     <Grid item xs={5} alignItems='flex-end' direction='column' display='flex'>
                         <Button onClick={onClose} color='error'><Close /></Button>
-                        <Button size='small' sx={{ alignSelf: "flex-start" }} variant="outlined">Gerar histórico</Button>
+                        <Button size='small' sx={{ alignSelf: "flex-start" }} variant="outlined" onClick={handleHistoryModal}>Gerar histórico</Button>
                     </Grid>
                 </Grid>
                 <Grid item>
@@ -137,73 +149,76 @@ export function GradesModal({ onClose, matricula }: GradesModalProps) {
                             sx={{ marginRight: 1 }} />)}
                 </Grid>
                 <Grid item container rowSpacing={2} xs={12} >
-                    <Grid item xs={12}>
-                        <Typography fontWeight='600'>Cadastrar nota</Typography>
-                    </Grid>
-                    <Grid xs={12} item >
-                        <form onSubmit={handleSubmit(onSubmit)}>
-                            <Grid
-                                xs={12}
-                                container
-                                item
-                                columnSpacing={1}
-                                display="flex"
-                                alignItems="center"
-                            >
-                                <Grid item xs={4}>
-                                    <Controller
-                                        name="grade"
-                                        control={control}
-                                        render={({ field }) => (
-                                            <TextField
-                                                {...field}
-                                                type="number"
-                                                label="Nota"
-                                                fullWidth
-                                                size="small"
-                                                error={!!errors.grade}
-                                                helperText={errors.grade?.message}
-                                            />
-                                        )}
-                                    />
+                    {gradeForm ? (<>
+                        <Grid item xs={12}>
+                            <Typography fontWeight='600'>Cadastrar nota</Typography>
+                        </Grid>
+                        <Grid xs={12} item >
+                            <form onSubmit={handleSubmit(onSubmit)}>
+                                <Grid
+                                    xs={12}
+                                    container
+                                    item
+                                    columnSpacing={1}
+                                    display="flex"
+                                    alignItems="center"
+                                >
+                                    <Grid item xs={4}>
+                                        <Controller
+                                            name="grade"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <TextField
+                                                    {...field}
+                                                    type="number"
+                                                    label="Nota"
+                                                    fullWidth
+                                                    size="small"
+                                                    error={!!errors.grade}
+                                                    helperText={errors.grade?.message}
+                                                />
+                                            )}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={6}>
+                                        <Controller
+                                            name="subjectId"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <TextField
+                                                    {...field}
+                                                    label="Disciplina"
+                                                    select
+                                                    fullWidth
+                                                    size="small"
+                                                    error={!!errors.subjectId}
+                                                    helperText={errors.subjectId?.message}
+                                                >
+                                                    {studentSubjects.map((item) => (
+                                                        <MenuItem key={item.id} value={item.id}>
+                                                            {item.name}
+                                                        </MenuItem>
+                                                    ))}
+                                                </TextField>
+                                            )}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={2}>
+                                        <Button type="submit" variant="contained" color="success">
+                                            Salvar
+                                        </Button>
+                                    </Grid>
                                 </Grid>
-                                <Grid item xs={6}>
-                                    <Controller
-                                        name="subjectId"
-                                        control={control}
-                                        render={({ field }) => (
-                                            <TextField
-                                                {...field}
-                                                label="Disciplina"
-                                                select
-                                                fullWidth
-                                                size="small"
-                                                error={!!errors.subjectId}
-                                                helperText={errors.subjectId?.message}
-                                            >
-                                                {studentSubjects.map((item) => (
-                                                    <MenuItem key={item.id} value={item.id}>
-                                                        {item.name}
-                                                    </MenuItem>
-                                                ))}
-                                            </TextField>
-                                        )}
-                                    />
-                                </Grid>
-                                <Grid item xs={2}>
-                                    <Button type="submit" variant="contained" color="success">
-                                        Salvar
-                                    </Button>
-                                </Grid>
-                            </Grid>
-                        </form>
-                    </Grid>
+                            </form>
+                        </Grid>
+                    </>) : (<Button size="small" variant='outlined' onClick={() => { setGradeForm(true) }} endIcon={<Add />}>Cadastrar Nota</Button>)}
                 </Grid>
 
                 <Grid xs={12} item>
                     <Typography variant="h5" textAlign='center' fontWeight={600}>Notas</Typography>
                     <GradesTable matricula={matricula} filter={subjectFilter} />
                 </Grid>
+                {historyModal && (<HistoricModal matricula={matricula} onClose={handleHistoryModal} />)}
             </Grid>
         </Box>
     </Modal >)
