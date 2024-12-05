@@ -10,12 +10,14 @@ import { Grid, Button, Typography } from "@mui/material";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
+import useSWR, { useSWRConfig } from "swr";
 
 export default function Home() {
   const { authData, clearAuthData } = useAuth();
 
   const [subjectModal, setSubjectModal] = useState(false);
   const [studentModal, setStudentModal] = useState(false);
+  const { mutate } = useSWRConfig()
 
   const handleSubjectModal = () => {
     setSubjectModal(!subjectModal)
@@ -25,11 +27,11 @@ export default function Home() {
     setStudentModal(!studentModal)
   }
 
-  useEffect(()=>{
-    if(!authData){
+  useEffect(() => {
+    if (!authData) {
       redirect('/')
     }
-  },[authData])
+  }, [authData])
 
 
   return (
@@ -60,7 +62,7 @@ export default function Home() {
             <Button variant="contained" color="primary" onClick={handleSubjectModal}>Cadastrar diciplina</Button>
           </Grid>
           <Grid xs={12} item>
-            <SubjectsTable matricula={authData?.user?.matricula as string}/>
+            <SubjectsTable matricula={authData?.user?.matricula as string} />
           </Grid>
         </Grid>
         <Grid container item padding={2} marginY={1} rowSpacing={2} sx={{ backgroundColor: "#fff", borderRadius: '5px' }} >
@@ -76,14 +78,20 @@ export default function Home() {
           <Grid item xs={12}>
             {studentModal && (
               <Grid item xs={12} padding={2} margin={1}>
-                <StudentForm onClose={handleStudentModal}/>
+                <StudentForm onClose={() => {
+                  handleStudentModal();
+                  mutate(`/alunos`);
+                }} />
               </Grid>)}
             <StudentsTable />
           </Grid>
         </Grid>
       </Grid>
 
-      {subjectModal && (<SubjectModal onClose={handleSubjectModal} />)}
+      {subjectModal && (<SubjectModal onClose={() => {
+        handleSubjectModal();
+        mutate(`/disciplinas`);
+      }} />)}
 
     </Grid>
   );

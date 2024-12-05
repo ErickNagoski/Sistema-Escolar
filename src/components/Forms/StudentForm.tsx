@@ -20,7 +20,7 @@ const cursos = [
 const StudentForm = ({ onClose }: { onClose: () => void }) => {
     const { authData } = useAuth();
 
-    const { control, handleSubmit } = useForm({
+    const { control, handleSubmit, reset } = useForm({
         defaultValues: {
             nome: '',
             data_nascimento: '',
@@ -40,7 +40,13 @@ const StudentForm = ({ onClose }: { onClose: () => void }) => {
             headers: {
                 Authorization: `Bearer ${authData?.token}`
             }
-        }).then(() => { onClose })
+        }).then(() => { 
+            reset();
+            onClose();
+            window.alert('Cadastrado')
+        }).catch(()=>{
+            window.alert('Erro ao cadastrar.')
+        })
     };
 
 
